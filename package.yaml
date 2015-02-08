@@ -1,0 +1,19 @@
+config_version : 0
+
+version:  1.0.0
+
+name: studiolibraryplugins
+
+uuid: ee40bb65-0a68-444e-bc64-8d04e4b2c128
+
+release_info: >
+    + NA
+
+authors:
+- Kurt Rathjen
+
+description: >
+    NA
+ 
+commands:
+- export PYTHONPATH=$PYTHONPATH:!ROOT!
