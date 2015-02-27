@@ -275,7 +275,7 @@ class Record(studiolibrary.Record):
         """
         @rtype: int
         """
-        if self._transferObject:
+        if self.transferObject():
             return self.transferObject().count()
         else:
             return 0
@@ -291,7 +291,9 @@ class Record(studiolibrary.Record):
         @rtype: mutils.TransferObject
         """
         if not self._transferObject:
-            self._transferObject = self.transferClass().createFromPath(self.transferPath())
+            path = self.transferPath()
+            if os.path.exists(path):
+                self._transferObject = self.transferClass().createFromPath(path)
         return self._transferObject
 
     def doubleClicked(self):
