@@ -194,7 +194,8 @@ class Record(studiolibrary.Record):
         try:
             record.transferObject().load(namespaces=namespaces, **self.selectionModifiers())
         except mutils.NoMatchFoundError, e:
-            self.window().setError(str(e))
+            if self.window():
+                self.window().setError(str(e))
             raise
 
         if load:
@@ -310,7 +311,8 @@ class Record(studiolibrary.Record):
             namespaces = self.namespaces()
             self.transferObject().load(objects=objects, namespaces=namespaces)
         except Exception, msg:
-            self.window().setError(str(msg))
+            if self.window():
+                self.window().setError(str(msg))
             raise
 
     def validateSaveOptions(self, objects, icon):
@@ -329,13 +331,14 @@ class Record(studiolibrary.Record):
         if not objects:
             raise ValidateError("Please select at least one object for saving")
 
-    def save(self, icon=None):
+    def save(self, icon=None, objects=None, force=False):
         """
         @raise:
         """
         log.info("Saving: %s" % self.transferPath())
         try:
-            objects = maya.cmds.ls(selection=True) or []
+            if objects is None:
+                objects = maya.cmds.ls(selection=True) or []
             self.validateSaveOptions(objects=objects, icon=icon)
 
             tmpDir = studiolibrary.tempDir("transfer")
@@ -344,9 +347,10 @@ class Record(studiolibrary.Record):
             t = self.transferClass().createFromObjects(objects)
             t.save(tmpPath)
 
-            studiolibrary.Record.save(self, content=[tmpPath], icon=icon)
+            studiolibrary.Record.save(self, content=[tmpPath], icon=icon, force=force)
         except Exception, msg:
-            self.window().setError(str(msg))
+            if self.window():
+                self.window().setError(str(msg))
             raise
 
 
@@ -660,7 +664,8 @@ class CreateWidget(BaseWidget):
             self._thumbnail = mutils.snapshot(path=self._thumbnail)
             self.setSnapshot(self._thumbnail)
         except Exception, e:
-            self.record().window().setError(str(e))
+            if self.record().window():
+                self.record().window().setError(str(e))
             raise
 
     #def playblast(self, path, start=None, end=None):
