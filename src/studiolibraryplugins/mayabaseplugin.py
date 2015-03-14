@@ -339,6 +339,11 @@ class Record(studiolibrary.Record):
         try:
             if objects is None:
                 objects = maya.cmds.ls(selection=True) or []
+
+            if not icon:
+                tempDir = studiolibrary.tempDir(make=True, clean=True)
+                icon = mutils.snapshot(path=tempDir + "/thumbnail.jpg")
+
             self.validateSaveOptions(objects=objects, icon=icon)
 
             tmpDir = studiolibrary.tempDir("transfer")
@@ -578,7 +583,7 @@ class PreviewWidget(BaseWidget):
     def selectionChanged(self):
         """
         """
-        self.updateNamespaceEdit()
+        self.stateChanged()
 
     def updateNamespaceEdit(self):
         """
