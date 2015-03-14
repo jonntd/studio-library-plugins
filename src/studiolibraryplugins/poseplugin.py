@@ -80,43 +80,21 @@ class Record(mayabaseplugin.Record):
             self.setTransferBasename("pose.json")
 
     @classmethod
-    def createFromSelection(cls, path, icon=None, force=False):
+    def createFromPath(cls, path, plugin="studiolibraryplugins.poseplugin"):
         """
         @type path: str
-        @type icon: str | None
-        @type force: bool
-        @rtype: Record
-        """
-        objects = maya.cmds.ls(selection=True)
-        if not objects:
-            raise Exception("Please select at least one object for saving!")
-        return Record.createFromObjects(path=path, objects=objects, icon=icon, force=force)
-
-    @classmethod
-    def createFromObjects(cls, path, objects, icon=None, force=False):
-        """
-        @type path: str
-        @type objects: list[]
-        @type icon: str | None
-        @type force: bool
         @rtype: Record
         """
         import studiolibrary
 
         dirname = os.path.dirname(path)
         basename = os.path.basename(path)
-
-        if not icon:
-            tempDir = studiolibrary.tempDir(make=True, clean=True)
-            icon = mutils.snapshot(path=tempDir + "/thumbnail.jpg")
-
-        plugin = studiolibrary.loadPlugin("studiolibraryplugins.poseplugin")
         folder = studiolibrary.Folder(dirname)
+        plugin = studiolibrary.loadPlugin(plugin)
 
         r = cls(folder=folder)
         r.setName(basename)
         r.setPlugin(plugin)
-        r.save(objects=objects, icon=icon, force=force)
         return r
 
     def mirrorTable(self):
