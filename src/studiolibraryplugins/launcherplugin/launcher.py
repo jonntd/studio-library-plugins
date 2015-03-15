@@ -40,8 +40,6 @@ except ImportError:
     from PyQt4 import QtCore
 
 import studiolibrary
-
-
 PACKAGEPATH = (os.getenv("USERPROFILE") + "/Dropbox/packages").replace('\\', '/')
 DIRNAME = os.path.dirname(os.path.abspath(__file__)).replace('\\', '/')
 
@@ -54,10 +52,7 @@ class Plugin(studiolibrary.Plugin):
         self.setName("Launcher")
         self.setExtension("app")
         self.setIcon(self.dirname() + "/images/pose.png")
-
         self.setRecord(App)
-        #~ self.setCreateWidget(PoseCreateWidget)
-        #~ self.setPreviewWidget(PosePreviewWidget)
 
 
 class App(studiolibrary.Record):
@@ -157,5 +152,5 @@ class App(studiolibrary.Record):
 
 if __name__ == "__main__":
     import studiolibrary
-    studiolibrary.main(plugins=["launcher.launcher"], name="Launcher")
+    studiolibrary.main(plugins=["launcherplugin.launcher"], name="Launcher")
 
