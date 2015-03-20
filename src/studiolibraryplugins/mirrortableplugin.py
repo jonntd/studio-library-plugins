@@ -97,8 +97,8 @@ class Record(mayabaseplugin.Record):
             objects = maya.cmds.ls(selection=True) or []
             self.validateSaveOptions(objects, icon)
 
-            tmpDir = studiolibrary.tempDir("transfer")
-            tmpPath = os.path.join(tmpDir, self.transferBasename())
+            tempDir = studiolibrary.TempDir("Transfer", makedirs=True)
+            tmpPath = os.path.join(tempDir.path(), self.transferBasename())
 
             t = self.transferClass().createFromObjects(objects, left=left, right=right)
             t.save(tmpPath)

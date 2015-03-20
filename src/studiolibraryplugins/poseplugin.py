@@ -68,6 +68,7 @@ class Record(mayabaseplugin.Record):
         self._selection = []
         self._namespaces = None
         self._mirror = None
+        self._isLoading = False
         self._mirrorTable = None
         self._autoKeyFrame = None
         self._mousePosition = None
@@ -96,6 +97,12 @@ class Record(mayabaseplugin.Record):
         r.setName(basename)
         r.setPlugin(plugin)
         return r
+
+    def isLoading(self):
+        """
+        @rtype: bool
+        """
+        return self._isLoading
 
     def mirrorTable(self):
         """
@@ -194,6 +201,7 @@ class Record(mayabaseplugin.Record):
         """
         maya.cmds.undoInfo(openChunk=True)
 
+        self._isLoading = True
         self._namespaces = self.namespaces()
         self._mirrorTable = self.mirrorTable()
         self._selection = maya.cmds.ls(selection=True) or []
@@ -206,6 +214,7 @@ class Record(mayabaseplugin.Record):
         """
         """
         self._mirror = None
+        self._isLoading = False
         self._mirrorTable = False
         self._mousePosition = None
         self._previousBlendValue = self._currentBlendValue
@@ -244,6 +253,9 @@ class Record(mayabaseplugin.Record):
         @type mirror: bool | None
         @type mirrorTable: mutils.MirrorTable
         """
+        if not self._isLoading:
+            return
+
         self._currentBlendValue = blend
 
         try:
@@ -272,6 +284,7 @@ class Record(mayabaseplugin.Record):
                                        mirror=mirror, key=key, refresh=refresh, mirrorTable=mirrorTable)
 
         except Exception, msg:
+            self.afterLoad()
             if self.window():
                 self.window().setError(str(msg))
             raise
@@ -312,7 +325,8 @@ class PosePreviewWidget(mayabaseplugin.PreviewWidget):
         self.connect(self.ui.blendSlider, QtCore.SIGNAL("sliderReleased()"), self.sliderReleased)
         self.plugin().connect(self.plugin(), QtCore.SIGNAL("updateBlend(int)"), self.updateSlider)
         self.plugin().connect(self.plugin(), QtCore.SIGNAL("updateMirror(bool)"), self.updateMirror)
-        self.updateSlider(self.record().currentBlendValue())
+        # self.updateSlider(self.record().currentBlendValue())
+        # self._sliderPressed = False
 
         # Mirror check box
         mirrorTip = "Cannot find mirror table!"
@@ -370,7 +384,10 @@ class PosePreviewWidget(mayabaseplugin.PreviewWidget):
         """
         key = self.ui.keyCheckBox.isChecked()
         blend = self.ui.blendSlider.value()
-        self.record().load(blend=blend, key=key)
+        try:
+            self.record()._load(blend=blend, refresh=False, key=key)
+        finally:
+            self.record().afterLoad()
 
     def sliderMoved(self, value):
         """

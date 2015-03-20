@@ -337,22 +337,22 @@ class Record(studiolibrary.Record):
         """
         log.info("Saving: %s" % self.transferPath())
         try:
+            tempDir = studiolibrary.TempDir("Transfer", clean=True)
+
             if objects is None:
                 objects = maya.cmds.ls(selection=True) or []
 
             if not icon:
-                tempDir = studiolibrary.tempDir(make=True, clean=True)
-                icon = mutils.snapshot(path=tempDir + "/thumbnail.jpg")
+                icon = tempDir.path() + "/thumbnail.jpg"
+                icon = mutils.snapshot(path=icon)
 
             self.validateSaveOptions(objects=objects, icon=icon)
 
-            tmpDir = studiolibrary.tempDir("transfer")
-            tmpPath = os.path.join(tmpDir, self.transferBasename())
-
+            transferPath = tempDir.path() + "/" + self.transferBasename()
             t = self.transferClass().createFromObjects(objects)
-            t.save(tmpPath)
+            t.save(transferPath)
 
-            studiolibrary.Record.save(self, content=[tmpPath], icon=icon, force=force)
+            studiolibrary.Record.save(self, content=[transferPath], icon=icon, force=force)
         except Exception, msg:
             if self.window():
                 self.window().setError(str(msg))
@@ -663,8 +663,8 @@ class CreateWidget(BaseWidget):
         return self._modelPanel
 
     def snapshot(self):
-        path = studiolibrary.tempDir(make=True, clean=True)
-        self._thumbnail = path + "/thumbnail.jpg"
+        tempDir = studiolibrary.TempDir(makedirs=True)
+        self._thumbnail = tempDir.path() + "/thumbnail.jpg"
         try:
             self._thumbnail = mutils.snapshot(path=self._thumbnail)
             self.setSnapshot(self._thumbnail)

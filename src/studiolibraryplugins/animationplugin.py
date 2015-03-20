@@ -171,10 +171,12 @@ class Record(mayabaseplugin.Record):
             objects = maya.cmds.ls(selection=True) or []
             self.validateSaveOptions(objects=objects, icon=icon)
 
-            tmpPath = studiolibrary.tempDir("transfer") + "/transfer.anim"
+            #tmpPath = studiolibrary.tempDir("transfer") + "/transfer.anim"
+            tempDir = studiolibrary.TempDir("Transfer")
+            tempPath = tempDir.path() + "/transfer.anim"
 
             t = self.transferClass().createFromObjects(objects)
-            t.save(tmpPath, time=[startFrame, endFrame], bakeConnected=bakeConnected)
+            t.save(tempPath, time=[startFrame, endFrame], bakeConnected=bakeConnected)
             content.extend(t.paths())
 
             self.set("start", startFrame)
@@ -332,9 +334,11 @@ Would you like to show this message again?'''
             elif result == QtGui.QMessageBox.No:
                 self.settings().set("byFrameDialog", False)
 
-        path = studiolibrary.tempDir(make=True, clean=True)
-        self._thumbnail = path + "/thumbnail.jpg"
-        self._sequence = path + "/sequence/thumbnail.jpg"
+        # path = studiolibrary.tempDir(make=True, clean=True)
+        tempDir = studiolibrary.TempDir(clean=True)
+
+        self._thumbnail = tempDir.path() + "/thumbnail.jpg"
+        self._sequence = tempDir.path() + "/sequence/thumbnail.jpg"
         try:
             self._sequence = mutils.snapshot(path=self._sequence, start=startFrame, end=endFrame,
                                              step=self.byFrame())
